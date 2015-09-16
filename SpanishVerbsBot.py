@@ -89,15 +89,14 @@ class TelegramBot():
 		super(TelegramBot, self).__init__()
 		self.bot = telegram.Bot(token)
 
-	def process_message(self,message,mode):
+	def process_message(self,message):
 		'''
 		Processes a message and returns a tuple
 		First element - message to display
 		Second element - custom keyboard markup to show. None to hide custom keyboard.
-		Third element - the mode to switch to. None if no mode-switching required
 		'''
-		debug("mode",mode)
-		if mode == "Main":
+		debug("mode",self.mode)
+		if self.mode == "Main":
 			if message == '/help':
 				return (HELP_MESSAGE,"Same",None)
 			elif message == '/begin':
@@ -105,7 +104,7 @@ class TelegramBot():
 			else:
 				return ("Unknown command","Same",None)
 
-		elif mode == "Conj":
+		elif self.mode == "Conj":
 
 			def generate_verb_buttons(conj):
 				def split_list(alist,max_size=1):
@@ -118,15 +117,17 @@ class TelegramBot():
 			eligible_messages = ['Conjugation_1','Conjugation_2','Conjugation_3','Irregular']
 			if message in eligible_messages:
 				self.conj = message
-				return ("Which verb?", generate_verb_buttons(message),"PickVerb")
+				return ("Which verb?", generate_verb_buttons(self.conj),"PickVerb")
 			elif message == "Random":
 				self.conj = choice(eligible_messages)
-				return (conj.replace("_"," ") + " is picked.\nWhich verb?",generate_verb_buttons(conj),"PickVerb")
+				return (self.conj.replace("_"," ") + " is picked.\nWhich verb?",generate_verb_buttons(self.conj),"PickVerb")
+			elif message == "Back":
+				return ("Welcome!",MAIN_MENU_MARKUP,"Main")
 			else:
 				return ("Unknown command. Try again!","Same",None)
 
 
-		elif mode == "PickVerb":
+		elif self.mode == "PickVerb":
 
 			def generate_tense_buttons(conj,verb):
 				def split_list(alist,max_size=1):
@@ -136,33 +137,30 @@ class TelegramBot():
 				list1 = list(VERBS[conj][verb].keys())
 				return list(split_list(list1,3)) + [["Random","Back"]]
 
-			if message == "Random":
-				pass
-			elif message == "Back":
-				pass
+			if message == "Back":
+				return ("Welcome!",MAIN_MENU_MARKUP,"Main")
 			else:
 				try:
-					tenses = list(VERBS[self.conj][message].keys())
-					self.verb = message
-					return ("Which tense?", generate_tense_buttons(self.conj,message) , "PickTense")
+					self.verb = message if message != "Random" else choice(list(VERBS[self.conj].keys()))
+					tenses = list(VERBS[self.conj][self.verb].keys())
+					return ("Which tense?", generate_tense_buttons(self.conj,self.verb) , "PickTense")
 				except KeyError:
 					return ("Unknown command. Try again!","Same",None)
 					
 
-		elif mode == "PickTense":
-			conj = mode[0]#extracting tense from mode
-			if message == "Random":
-				pass
+		elif self.mode == "PickTense":
+			if message == "Back":
+				return ("Welcome!",MAIN_MENU_MARKUP,"Main")
 			else:
 				try:
-					list1 = VERBS[self.conj][self.verb][message]
-					self.tense = tense = message
+					self.tense = message if message != "Random" else choice(list(VERBS[self.conj][self.verb].keys()))
+					list1 = VERBS[self.conj][self.verb][self.tense]
 					self.form_index = 0
-					return("The verb is: " + self.verb + "\nThe tense is: " + tense.replace("_"," ") + "\nConjugate!",None,"Game")
+					return("The verb is: " + self.verb + "\nThe tense is: " + self.tense.replace("_"," ") + "\nConjugate!",None,"Game")
 				except KeyError:
 					return ("Could not process message. Try again!","Same",None)
 
-		elif mode == "Game":
+		elif self.mode == "Game":
 			forms = VERBS[self.conj][self.verb][self.tense]
 			if message.replace("A","á").replace("O","ó").replace("I","í").replace("U","ú").replace("E","é").replace("N","ñ").replace("UU","ü") == forms[self.form_index][1]:
 				self.form_index += 1
@@ -178,7 +176,7 @@ class TelegramBot():
 		A process working with a user
 		'''
 		start_timer = time()
-		mode = "Main"
+		self.mode = "Main"
 
 		self.send_message("Welcome!",ID,MAIN_MENU_MARKUP)
 
@@ -187,9 +185,9 @@ class TelegramBot():
 				message = q.get()
 
 				#process message
-				result = self.process_message(message,mode)
+				result = self.process_message(message)
 				if result[2]:
-					mode = result[2]
+					self.mode = result[2]
 				self.send_message(result[0],ID,result[1])
 
 				#restart timer
@@ -242,11 +240,6 @@ class TelegramBot():
 			if not self.users[user][0].is_alive():
 				debug('deleting user ', user)
 				del self.users[user]
-
-		try:
-			debug("self.conj",self.conj)
-		except Exception as e:
-			debug(e)
 
 		for update in updates:
 			chat_id = update.message.chat_id
