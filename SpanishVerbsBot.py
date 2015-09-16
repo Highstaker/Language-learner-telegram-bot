@@ -15,7 +15,6 @@ def debug(*msg):
 ################
 
 VERBS = {
-"Regular" : {
 "Conjugation_1" : {
 "bailar" : { "Presente" :[("yo","bailo"),("tu","bailas"), ("el/ella","baila"),("nosotros", "bailamos"),("vosotros", "bailáis") ,("ellos", "bailan")]
 ,"Pretérito_imperfecto":[("yo","bailaba"),("tu","bailabas"), ("el/ella","bailaba"),("nosotros", "bailábamos"),("vosotros", "bailabais") ,("ellos", "bailaban")]
@@ -49,7 +48,6 @@ VERBS = {
 ,"Modo_imperativo_afirmativo": [("tu","vive"), ("usted","viva"),("nosotros", "vivamos"),("vosotros", "vivid") ,("ustedes", "vivan")]
 }
 }
-}
 ,"Irregular":{
 	"ir" : {
  "Presente" :[("yo","voy"), ("tu","vas"),("el/ella", "va"),("nosotros", "vamos"), ("vosotros","vais") ,("ellos", "van")]
@@ -70,7 +68,7 @@ HELP_MESSAGE = '''This bot helps you remember Spanish verb conjugations
 
 MAIN_MENU_MARKUP = [["/help"],["/begin"]]
 REG_IRREG_MARKUP = [['Regular','Irregular'],['Random','Back']]
-CONJ_PICK_MARKUP = [["Conjugation_1","Conjugation_2","Conjugation_3"],["Random",'Back']]
+CONJ_PICK_MARKUP = [["Conjugation_1","Conjugation_2","Conjugation_3","Irregular"],["Random",'Back']]
 
 MAX_PROCESS_TIME = 120
 
@@ -101,83 +99,78 @@ class TelegramBot():
 		debug("mode",mode)
 		if mode == "Main":
 			if message == '/help':
-				return (HELP_MESSAGE,MAIN_MENU_MARKUP,None)
+				return (HELP_MESSAGE,"Same",None)
 			elif message == '/begin':
-				return ("Regular or Irregular?",REG_IRREG_MARKUP,"Reg/Irreg?")
+				return ("Regular (pick conjugation) or Irregular?",CONJ_PICK_MARKUP,"Conj")
 			else:
-				return ("Unknown command",MAIN_MENU_MARKUP,None)
-		elif mode == "Reg/Irreg?":
-			if message == "Regular":
-				return ("Which conjugation?",CONJ_PICK_MARKUP,"ConjN?")
-			elif message == "Irregular":
+				return ("Unknown command","Same",None)
+
+		elif mode == "Conj":
+
+			def generate_verb_buttons(conj):
 				def split_list(alist,max_size=1):
 					"""Yield successive n-sized chunks from l."""
 					for i in range(0, len(alist), max_size):
 						yield alist[i:i+max_size]
-				return ("Which irregular verb?",list(split_list(list(VERBS["Irregular"].keys()),5)) + [["Random","Back"]],"PickVerb")
+				list1 = list(VERBS[conj].keys())
+				return list(split_list(list1,3)) + [["Random","Back"]]
+
+			eligible_messages = ['Conjugation_1','Conjugation_2','Conjugation_3','Irregular']
+			if message in eligible_messages:
+				self.conj = message
+				return ("Which verb?", generate_verb_buttons(message),"PickVerb")
+			elif message == "Random":
+				self.conj = choice(eligible_messages)
+				return (conj.replace("_"," ") + " is picked.\nWhich verb?",generate_verb_buttons(conj),"PickVerb")
 			else:
 				return ("Unknown command. Try again!","Same",None)
+
+
 		elif mode == "PickVerb":
+
+			def generate_tense_buttons(conj,verb):
+				def split_list(alist,max_size=1):
+					"""Yield successive n-sized chunks from l."""
+					for i in range(0, len(alist), max_size):
+						yield alist[i:i+max_size]
+				list1 = list(VERBS[conj][verb].keys())
+				return list(split_list(list1,3)) + [["Random","Back"]]
+
 			if message == "Random":
 				pass
 			elif message == "Back":
 				pass
 			else:
 				try:
-					tenses = list(VERBS["Irregular"][message].keys())
+					tenses = list(VERBS[self.conj][message].keys())
+					self.verb = message
+					return ("Which tense?", generate_tense_buttons(self.conj,message) , "PickTense")
 				except KeyError:
-					pass
+					return ("Unknown command. Try again!","Same",None)
 					
-		elif mode == "ConjN?":
-			def generate_tense_buttons(conj):
-				def split_list(alist,max_size=1):
-					"""Yield successive n-sized chunks from l."""
-					for i in range(0, len(alist), max_size):
-						yield alist[i:i+max_size]
-				list1 = list(VERBS["Regular"]["Conjugation_"+str(conj)][list(VERBS["Regular"]["Conjugation_"+str(conj)].keys())[0]].keys())
-				return list(split_list(list1,3)) + [["Random","Back"]]
-			if "Conjugation" in message:
-				try:
-					conj = int(message.split("_")[1])
-					if conj in range(1,4): 
-						#[1,2,3]
-						return ("Which tense?",  generate_tense_buttons(conj),str(conj) + "PickTense")
-				except Exception as e:
-					debug(e)
-					return ("Could not process message. Try again!",CONJ_PICK_MARKUP,None)
-			elif message == "Random":
-				conj = randint(1,3)
-				return ("Conjugation " + str(conj) + " is picked.\nWhich tense?",generate_tense_buttons(conj),str(conj) + "PickTense")
-			else:
-				return ("Unknown command. Try again!",CONJ_PICK_MARKUP,None)
-		elif "PickTense" in mode:
+
+		elif mode == "PickTense":
 			conj = mode[0]#extracting tense from mode
 			if message == "Random":
 				pass
 			else:
 				try:
-					list1 = VERBS["Regular"]["Conjugation_" + str(conj)]
-					verb = choice(list(list1.keys()))
-					list2 = list1[verb]
-					tense = message
-					list2[tense]
-					return("The verb is: " + verb + "\nThe tense is: " + tense.replace("_"," ") + "\nConjugate!",None,"Game " + "Regular " + "Conjugation_" + str(conj) + " " + verb + " " + tense + " " + "0")
+					list1 = VERBS[self.conj][self.verb][message]
+					self.tense = tense = message
+					self.form_index = 0
+					return("The verb is: " + self.verb + "\nThe tense is: " + tense.replace("_"," ") + "\nConjugate!",None,"Game")
 				except KeyError:
 					return ("Could not process message. Try again!","Same",None)
-		elif "Game" in mode:
-			parse = mode.split()
-			if parse[1] == "Regular":
-				debug('parse',parse)
-				# sleep(60)
-				list1 = VERBS["Regular"][parse[2]][parse[3]][parse[4]]
-				if message.replace("A","á").replace("O","ó").replace("I","í").replace("U","ú").replace("E","é").replace("N","ñ").replace("UU","ü") == list1[int(parse[5])][1]:
-					return( ( "Correct!" + "\n" + list1[int(parse[5])+1][0] ) if (int(parse[5])+1 < len(list1)) else "Correct!\nAll forms completed!"
-						,None if ( int(parse[5])+1 < len(list1) ) else MAIN_MENU_MARKUP
-						,"Game " + "Regular " + parse[2] + " " + parse[3] + " " + parse[4] + " " + str(int(parse[5])+1) if (int(parse[5])+1 < len(list1)) else "Main")
-				else:
-					return("Incorrect!",None,None)
-			elif parse[2] == "Irregular":
-				pass
+
+		elif mode == "Game":
+			forms = VERBS[self.conj][self.verb][self.tense]
+			if message.replace("A","á").replace("O","ó").replace("I","í").replace("U","ú").replace("E","é").replace("N","ñ").replace("UU","ü") == forms[self.form_index][1]:
+				self.form_index += 1
+				return( ( "Correct!" + "\n" + forms[self.form_index][0] ) if (self.form_index < len(forms)) else "Correct!\nAll forms completed!"
+					,None if ( self.form_index < len(forms) ) else MAIN_MENU_MARKUP
+					,None if (self.form_index< len(forms)) else "Main")
+			else:
+				return("Incorrect!",None,None)
 
 
 	def user_process(self,ID,q):
@@ -186,6 +179,8 @@ class TelegramBot():
 		'''
 		start_timer = time()
 		mode = "Main"
+
+		self.send_message("Welcome!",ID,MAIN_MENU_MARKUP)
 
 		while time() - start_timer < MAX_PROCESS_TIME:
 			if not q.empty():
@@ -247,6 +242,11 @@ class TelegramBot():
 			if not self.users[user][0].is_alive():
 				debug('deleting user ', user)
 				del self.users[user]
+
+		try:
+			debug("self.conj",self.conj)
+		except Exception as e:
+			debug(e)
 
 		for update in updates:
 			chat_id = update.message.chat_id
