@@ -1,11 +1,9 @@
 #!/usr/bin/python3
 
 # TODO:
-# -mobile devices may start a word with capital letter. Implement a check for the first letter of the word.
-# +put VERBS into separate file.
+# +mobile devices may start a word with capital letter. Implement a check for the first letter of the word.
 # -put certain messages (for example, main menu welcome) into separate globals, for convenience of editing.
-# +read bot token from a separate file.
-# -implement hints
+# +implement hints
 # -spam protection. Maybe drop excessive messages.
 # --make bot universal, for databases of any depth. Maybe make the script be ableto work with various databases which can be chosen at runtime.
 
@@ -125,7 +123,14 @@ class TelegramBot():
 
 		elif self.mode == "Game":
 			forms = VERBS[self.conj][self.verb][self.tense]
-			if message.replace("A","á").replace("O","ó").replace("I","í").replace("U","ú").replace("E","é").replace("N","ñ").replace("UU","ü") == forms[self.form_index][1]:
+
+			#display the right answer
+			if message == "/hint":
+				return("The correct answer is: " + forms[self.form_index][1],None,None)
+
+			#Mobile devices may start a word with a capital letter. Make input lowercase
+			message = message.lower()
+			if message.replace("a1","á").replace("o1","ó").replace("i1","í").replace("u1","ú").replace("e1","é").replace("n1","ñ").replace("u2","ü") == forms[self.form_index][1]:
 				self.form_index += 1
 				return( ( "Correct!" + "\n" + forms[self.form_index][0] ) if (self.form_index < len(forms)) else "Correct!\nAll forms completed!"
 					,None if ( self.form_index < len(forms) ) else MAIN_MENU_MARKUP
