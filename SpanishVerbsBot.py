@@ -1,9 +1,20 @@
 #!/usr/bin/python3
 
+# TODO:
+# -mobile devices may start a word with capital letter. Implement a check for the first letter of the word.
+# +put VERBS into separate file.
+# -put certain messages (for example, main menu welcome) into separate globals, for convenience of editing.
+# +read bot token from a separate file.
+# -implement hints
+# -spam protection. Maybe drop excessive messages.
+# --make bot universal, for databases of any depth. Maybe make the script be ableto work with various databases which can be chosen at runtime.
+
+from VERBS import VERBS
 import telegram
 from multiprocessing import Process, Queue, Lock
 from time import time, sleep
 from random import randint, choice
+import os
 
 DEBUG = True
 def debug(*msg):
@@ -14,57 +25,9 @@ def debug(*msg):
 ####PARAMETERS
 ################
 
-VERBS = {
-"Conjugation_1" : {
-"bailar" : { "Presente" :[("yo","bailo"),("tu","bailas"), ("el/ella","baila"),("nosotros", "bailamos"),("vosotros", "bailáis") ,("ellos", "bailan")]
-,"Pretérito_imperfecto":[("yo","bailaba"),("tu","bailabas"), ("el/ella","bailaba"),("nosotros", "bailábamos"),("vosotros", "bailabais") ,("ellos", "bailaban")]
-,"Pretérito_simple": [("yo","bailé"),("tu","bailaste"), ("el/ella","bailó"),("nosotros", "bailamos"),("vosotros", "bailasteis") ,("ellos", "bailaron")]
-,"Futuro" :[("yo","bailaré"),("tu","bailarás"), ("el/ella","bailará"),("nosotros", "bailaremos"),("vosotros", "bailaréis") ,("ellos", "bailarán")]
-,"Potencial":[("yo","bailaría"),("tu","bailarías"), ("el/ella","bailaría"),("nosotros", "bailaríamos"),("vosotros", "bailaríais") ,("ellos", "bailarían")]
-,"Presente_de_subjuntivo": [("yo","baile"),("tu","bailes"), ("el/ella","baile"),("nosotros", "bailemos"),("vosotros", "bailéis") ,("ellos", "bailen")]
-,"Preterito_imperfecto_de_subjuntivo":[("yo","bailara"),("tu","bailaras"), ("el/ella","bailara"),("nosotros", "bailáramos"),("vosotros", "bailarais") ,("ellos", "bailaran")]
-,"Modo_imperativo_afirmativo":[("tu","baila"), ("usted","baile"),("nosotros", "bailemos"),("vosotros", "bailad") ,("ustedes", "bailen")]
-}
-}
-,"Conjugation_2" : {
-"comer" : { "Presente" :[("yo","como"), ("tu","comes"),("el/ella", "come"),("nosotros", "comemos"), ("vosotros","coméis") ,("ellos", "comen")]
-,"Pretérito_imperfecto":[("yo","comía"), ("tu","comías"),("el/ella", "comía"),("nosotros", "comíamos"), ("vosotros","comíais") ,("ellos", "comían")]
-,"Pretérito_simple": [("yo","comí"), ("tu","comiste"),("el/ella", "comió"),("nosotros", "comimos"), ("vosotros","comisteis") ,("ellos", "comieron")]
-,"Futuro" :[("yo","comeré"), ("tu","comerás"),("el/ella", "comerá"),("nosotros", "comeremos"), ("vosotros","comeréis") ,("ellos", "comerán")]
-,"Potencial":[("yo","comería"), ("tu","comerías"),("el/ella", "comería"),("nosotros", "comeríamos"), ("vosotros","comeríais") ,("ellos", "comerían")]
-,"Presente_de_subjuntivo": [("yo","coma"), ("tu","comas"),("el/ella", "coma"),("nosotros", "comamos"), ("vosotros","comáis") ,("ellos", "coman")]
-,"Preterito_imperfecto_de_subjuntivo":[("yo","comiera"), ("tu","comieras"),("el/ella", "comiera"),("nosotros", "comiéramos"), ("vosotros","comierais") ,("ellos", "comieran")]
-,"Modo_imperativo_afirmativo": [("tu","come"), ("usted","coma"),("nosotros", "comamos"),("vosotros", "comed") ,("ustedes", "coman")]
-}
-}
-,"Conjugation_3" : {
-"vivir" : { "Presente" :[("yo","vivo"), ("tu","vives"),("el/ella", "vive"),("nosotros", "vivimos"), ("vosotros","vivís") ,("ellos", "viven")]
-,"Pretérito_imperfecto":[("yo","vivía"), ("tu","vivías"),("el/ella", "vivía"),("nosotros", "vivíamos"), ("vosotros","vivíais") ,("ellos", "vivían")]
-,"Pretérito_simple": [("yo","viví"), ("tu","viviste"),("el/ella", "vivió"),("nosotros", "vivimos"), ("vosotros","vivisteis") ,("ellos", "vivieron")]
-,"Futuro" :[("yo","viviré"), ("tu","vivirás"),("el/ella", "vivirá"),("nosotros", "viviremos"), ("vosotros","viviréis") ,("ellos", "vivirán")]
-,"Potencial":[("yo","viviría"), ("tu","vivirías"),("el/ella", "viviría"),("nosotros", "viviríamos"), ("vosotros","viviríais") ,("ellos", "vivirían")]
-,"Presente_de_subjuntivo": [("yo","viva"), ("tu","vivas"),("el/ella", "viva"),("nosotros", "vivamos"), ("vosotros","viváis") ,("ellos", "vivan")]
-,"Preterito_imperfecto_de_subjuntivo":[("yo","viviera"), ("tu","vivieras"),("el/ella", "viviera"),("nosotros", "viviéramos"), ("vosotros","vivierais") ,("ellos", "vivieran")]
-,"Modo_imperativo_afirmativo": [("tu","vive"), ("usted","viva"),("nosotros", "vivamos"),("vosotros", "vivid") ,("ustedes", "vivan")]
-}
-}
-,"Irregular":{
-	"ir" : {
- "Presente" :[("yo","voy"), ("tu","vas"),("el/ella", "va"),("nosotros", "vamos"), ("vosotros","vais") ,("ellos", "van")]
-,"Pretérito_imperfecto":[("yo","iba"), ("tu","ibas"),("el/ella", "iba"),("nosotros", "íbamos"), ("vosotros","ibais") ,("ellos", "iban")]
-,"Pretérito_simple": [("yo","fui"), ("tu","fuiste"),("el/ella", "fue"),("nosotros", "fuimos"), ("vosotros","fuisteis") ,("ellos", "fueron")]
-,"Futuro" :[("yo","iré"), ("tu","irás"),("el/ella", "irá"),("nosotros", "iremos"), ("vosotros","iréis") ,("ellos", "irán")]
-,"Potencial":[("yo","iría"), ("tu","irías"),("el/ella", "iría"),("nosotros", "iríamos"), ("vosotros","iríais") ,("ellos", "irían")]
-,"Presente_de_subjuntivo": [("yo","vaya"), ("tu","vayas"),("el/ella", "vaya"),("nosotros", "vayamos"), ("vosotros","vayáis") ,("ellos", "vayan")]
-,"Preterito_imperfecto_de_subjuntivo":[("yo","fuera"), ("tu","fueras"),("el/ella", "fuera"),("nosotros", "fuéramos"), ("vosotros","fuerais") ,("ellos", "fueran")]
-,"Modo_imperativo_afirmativo": [("tu","ve"), ("usted","vaya"),("nosotros", "vayamos"),("vosotros", "id") ,("ustedes", "vayan")]
-
-}
-} 
-}
-
 HELP_MESSAGE = '''This bot helps you remember Spanish verb conjugations
 			'''
+MAIN_MENU_WELCOME_MESSAGE = 'Welcome!'
 
 MAIN_MENU_MARKUP = [["/help"],["/begin"]]
 REG_IRREG_MARKUP = [['Regular','Irregular'],['Random','Back']]
@@ -72,9 +35,9 @@ CONJ_PICK_MARKUP = [["Conjugation_1","Conjugation_2","Conjugation_3","Irregular"
 
 MAX_PROCESS_TIME = 120
 
-BOT_TOKEN = "132890499:AAFiiuze1SrX0v-_50qmBa5bMx6AVCqXSYY"
-
-
+#get token from a "token" file located in the same directory as the script.
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'token'),'r') as f:
+	BOT_TOKEN = f.read().replace("\n","")
 
 class TelegramBot():
 	"""docstring for TelegramBot"""
@@ -122,7 +85,7 @@ class TelegramBot():
 				self.conj = choice(eligible_messages)
 				return (self.conj.replace("_"," ") + " is picked.\nWhich verb?",generate_verb_buttons(self.conj),"PickVerb")
 			elif message == "Back":
-				return ("Welcome!",MAIN_MENU_MARKUP,"Main")
+				return (MAIN_MENU_WELCOME_MESSAGE,MAIN_MENU_MARKUP,"Main")
 			else:
 				return ("Unknown command. Try again!","Same",None)
 
@@ -138,7 +101,7 @@ class TelegramBot():
 				return list(split_list(list1,3)) + [["Random","Back"]]
 
 			if message == "Back":
-				return ("Welcome!",MAIN_MENU_MARKUP,"Main")
+				return (MAIN_MENU_WELCOME_MESSAGE,MAIN_MENU_MARKUP,"Main")
 			else:
 				try:
 					self.verb = message if message != "Random" else choice(list(VERBS[self.conj].keys()))
@@ -150,7 +113,7 @@ class TelegramBot():
 
 		elif self.mode == "PickTense":
 			if message == "Back":
-				return ("Welcome!",MAIN_MENU_MARKUP,"Main")
+				return (MAIN_MENU_WELCOME_MESSAGE,MAIN_MENU_MARKUP,"Main")
 			else:
 				try:
 					self.tense = message if message != "Random" else choice(list(VERBS[self.conj][self.verb].keys()))
@@ -178,7 +141,7 @@ class TelegramBot():
 		start_timer = time()
 		self.mode = "Main"
 
-		self.send_message("Welcome!",ID,MAIN_MENU_MARKUP)
+		self.send_message(MAIN_MENU_WELCOME_MESSAGE,ID,MAIN_MENU_MARKUP)
 
 		while time() - start_timer < MAX_PROCESS_TIME:
 			if not q.empty():
@@ -192,6 +155,12 @@ class TelegramBot():
 
 				#restart timer
 				start_timer = time()
+
+			#A delay to prevent the process from eating CPU resources
+			sleep(0.5)
+
+		#send this message to the user when the process is terminated
+		self.send_message("Thank you for coming. Type anything to restart the communication.",ID)
 
 
 		# self.delete_user(ID)
