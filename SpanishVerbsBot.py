@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 
 # TODO:
+# -database mode: show all the answers for a particular entry. Good to refresh an entry you don't remember.
 # +mobile devices may start a word with capital letter. Implement a check for the first letter of the word.
 # -put certain messages (for example, main menu welcome) into separate globals, for convenience of editing.
+# +put token into database file, so it would be easy to create several bots for different databases.
 # +implement hints
 # -spam protection. Maybe drop excessive messages.
+# +there is no pronoun prompt for the first question in the session. Add it!
 # --make bot universal, for databases of any depth. Maybe make the script be ableto work with various databases which can be chosen at runtime.
 
-from VERBS import VERBS
+from VERBS import VERBS, BOT_TOKEN
 import telegram
 from multiprocessing import Process, Queue, Lock
 from time import time, sleep
@@ -34,8 +37,8 @@ CONJ_PICK_MARKUP = [["Conjugation_1","Conjugation_2","Conjugation_3","Irregular"
 MAX_PROCESS_TIME = 120
 
 #get token from a "token" file located in the same directory as the script.
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'token'),'r') as f:
-	BOT_TOKEN = f.read().replace("\n","")
+# with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'token'),'r') as f:
+	# BOT_TOKEN = f.read().replace("\n","")
 
 class TelegramBot():
 	"""docstring for TelegramBot"""
@@ -115,9 +118,9 @@ class TelegramBot():
 			else:
 				try:
 					self.tense = message if message != "Random" else choice(list(VERBS[self.conj][self.verb].keys()))
-					list1 = VERBS[self.conj][self.verb][self.tense]
+					forms = VERBS[self.conj][self.verb][self.tense]
 					self.form_index = 0
-					return("The verb is: " + self.verb + "\nThe tense is: " + self.tense.replace("_"," ") + "\nConjugate!",None,"Game")
+					return("The verb is: " + self.verb + "\nThe tense is: " + self.tense.replace("_"," ") + "\nConjugate!\n" + forms[self.form_index][0],None,"Game")
 				except KeyError:
 					return ("Could not process message. Try again!","Same",None)
 
@@ -165,14 +168,16 @@ class TelegramBot():
 			sleep(0.5)
 
 		#send this message to the user when the process is terminated
-		self.send_message("Thank you for coming. Type anything to restart the communication.",ID)
+		self.send_message("Thank you for coming. Type anything to restart the communication.",ID,[["/start"]])
 
 
 		# self.delete_user(ID)
 
 	def send_message(self,message,chat_id,keyboard_markup=None):
 		'''
-		Sends a message
+		Sends a message to chat_id.
+		If keyboard_markup is 'Same', pass None to reply markup to leave it as-is.
+		If keyboard_markup in None, hide the custom keyboard.
 		'''
 		#lock here!
 		self.lock.acquire()
@@ -229,7 +234,7 @@ class TelegramBot():
 				p = Process(target=self.user_process, args=(chat_id,q,))
 				self.create_user(chat_id,p,q)
 				p.start()
-				q.put(message)
+				#q.put(message)#not needed, because we don't need to process /start or any random message
 			else:
 				debug('Sending data to user process', chat_id)
 				q = user[1]
