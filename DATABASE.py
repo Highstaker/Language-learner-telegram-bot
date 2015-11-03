@@ -2,13 +2,14 @@
 
 import os.path
 
-#get token from a "token" file located in the same directory as the script.
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'token'),'r') as f:
-	BOT_TOKEN = f.read().replace("\n","")
+CONJUGATION_METADATA = {"Prompt" : "Which conjugation? Or irregular?", "Name" : "Conjugation"}
+VERB_METADATA = {"Prompt" : "Which verb?", "Name" : "Verb"}
+TENSE_METADATA = {"Prompt" : "Which tense?", "Name" : "Tense"}
 
-VERBS = {
-"Conjugation_1" : {
-"bailar" : { "Presente" :[("yo","bailo"),("tu","bailas"), ("el/ella","baila"),("nosotros", "bailamos"),("vosotros", "bailáis") ,("ellos", "bailan")]
+VERBS = { "_metadata" : CONJUGATION_METADATA
+,"Conjugation_1" : { "_metadata" : VERB_METADATA
+,"bailar" : { "_metadata" : TENSE_METADATA
+,"Presente" :[("yo","bailo"),("tu","bailas"), ("el/ella","baila"),("nosotros", "bailamos"),("vosotros", "bailáis") ,("ellos", "bailan")]
 ,"Pretérito_imperfecto":[("yo","bailaba"),("tu","bailabas"), ("el/ella","bailaba"),("nosotros", "bailábamos"),("vosotros", "bailabais") ,("ellos", "bailaban")]
 ,"Pretérito_simple": [("yo","bailé"),("tu","bailaste"), ("el/ella","bailó"),("nosotros", "bailamos"),("vosotros", "bailasteis") ,("ellos", "bailaron")]
 ,"Futuro" :[("yo","bailaré"),("tu","bailarás"), ("el/ella","bailará"),("nosotros", "bailaremos"),("vosotros", "bailaréis") ,("ellos", "bailarán")]
@@ -20,8 +21,9 @@ VERBS = {
 
 }
 }
-,"Conjugation_2" : {
-"comer" : { "Presente" :[("yo","como"), ("tu","comes"),("el/ella", "come"),("nosotros", "comemos"), ("vosotros","coméis") ,("ellos", "comen")]
+,"Conjugation_2" : { "_metadata" : VERB_METADATA
+,"comer" : { "_metadata" : TENSE_METADATA
+,"Presente" :[("yo","como"), ("tu","comes"),("el/ella", "come"),("nosotros", "comemos"), ("vosotros","coméis") ,("ellos", "comen")]
 ,"Pretérito_imperfecto":[("yo","comía"), ("tu","comías"),("el/ella", "comía"),("nosotros", "comíamos"), ("vosotros","comíais") ,("ellos", "comían")]
 ,"Pretérito_simple": [("yo","comí"), ("tu","comiste"),("el/ella", "comió"),("nosotros", "comimos"), ("vosotros","comisteis") ,("ellos", "comieron")]
 ,"Futuro" :[("yo","comeré"), ("tu","comerás"),("el/ella", "comerá"),("nosotros", "comeremos"), ("vosotros","comeréis") ,("ellos", "comerán")]
@@ -32,8 +34,9 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","comiendo"), ("Participio","comido") ]
 }
 }
-,"Conjugation_3" : {
-"vivir" : { "Presente" :[("yo","vivo"), ("tu","vives"),("el/ella", "vive"),("nosotros", "vivimos"), ("vosotros","vivís") ,("ellos", "viven")]
+,"Conjugation_3" : { "_metadata" : VERB_METADATA
+,"vivir" : { "_metadata" : TENSE_METADATA
+,"Presente" :[("yo","vivo"), ("tu","vives"),("el/ella", "vive"),("nosotros", "vivimos"), ("vosotros","vivís") ,("ellos", "viven")]
 ,"Pretérito_imperfecto":[("yo","vivía"), ("tu","vivías"),("el/ella", "vivía"),("nosotros", "vivíamos"), ("vosotros","vivíais") ,("ellos", "vivían")]
 ,"Pretérito_simple": [("yo","viví"), ("tu","viviste"),("el/ella", "vivió"),("nosotros", "vivimos"), ("vosotros","vivisteis") ,("ellos", "vivieron")]
 ,"Futuro" :[("yo","viviré"), ("tu","vivirás"),("el/ella", "vivirá"),("nosotros", "viviremos"), ("vosotros","viviréis") ,("ellos", "vivirán")]
@@ -45,9 +48,9 @@ VERBS = {
 }
 }
 
-,"Irregular":{
-"ir" : {
- "Presente" :[("yo","voy"), ("tu","vas"),("el/ella", "va"),("nosotros", "vamos"), ("vosotros","vais") ,("ellos", "van")]
+,"Irregular":{ "_metadata" : VERB_METADATA
+,"ir" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","voy"), ("tu","vas"),("el/ella", "va"),("nosotros", "vamos"), ("vosotros","vais") ,("ellos", "van")]
 ,"Pretérito_imperfecto":[("yo","iba"), ("tu","ibas"),("el/ella", "iba"),("nosotros", "íbamos"), ("vosotros","ibais") ,("ellos", "iban")]
 ,"Pretérito_simple": [("yo","fui"), ("tu","fuiste"),("el/ella", "fue"),("nosotros", "fuimos"), ("vosotros","fuisteis") ,("ellos", "fueron")]
 ,"Futuro" :[("yo","iré"), ("tu","irás"),("el/ella", "irá"),("nosotros", "iremos"), ("vosotros","iréis") ,("ellos", "irán")]
@@ -58,8 +61,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","yendo"), ("Participio","ido") ]
 }
 
-,"ser" : {
-	"Presente" :[("yo","soy"), ("tu","eres"),("el/ella", "es"),("nosotros", "somos"), ("vosotros","sois") ,("ellos", "son")]
+,"ser" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","soy"), ("tu","eres"),("el/ella", "es"),("nosotros", "somos"), ("vosotros","sois") ,("ellos", "son")]
 ,"Pretérito_imperfecto":[("yo","era"), ("tu","eras"),("el/ella", "era"),("nosotros", "éramos"), ("vosotros","erais") ,("ellos", "eran")]
 ,"Pretérito_simple": [("yo","fui"), ("tu","fuiste"),("el/ella", "fue"),("nosotros", "fuimos"), ("vosotros","fuisteis") ,("ellos", "fueron")]
 ,"Futuro" :[("yo","seré"), ("tu","serás"),("el/ella", "será"),("nosotros", "seremos"), ("vosotros","seréis") ,("ellos", "serán")]
@@ -70,8 +73,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","siendo"), ("Participio","sido") ]
 }
 
-,"estar" : {
-	"Presente" :[("yo","estoy"), ("tu","estás"),("el/ella", "está"),("nosotros", "estamos"), ("vosotros","estáis") ,("ellos", "están")]
+,"estar" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","estoy"), ("tu","estás"),("el/ella", "está"),("nosotros", "estamos"), ("vosotros","estáis") ,("ellos", "están")]
 ,"Pretérito_imperfecto":[("yo","estaba"), ("tu","estabas"),("el/ella", "estaba"),("nosotros", "estábamos"), ("vosotros","estabais") ,("ellos", "estaban")]
 ,"Pretérito_simple": [("yo","estuve"), ("tu","estuviste"),("el/ella", "estuvo"),("nosotros", "estuvimos"), ("vosotros","estuvisteis") ,("ellos", "estuvieron")]
 ,"Futuro" :[("yo","estaré"), ("tu","estarás"),("el/ella", "estará"),("nosotros", "estaremos"), ("vosotros","estaréis") ,("ellos", "estarán")]
@@ -82,8 +85,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","estando"), ("Participio","estado") ]
 }
 
-,"hacer" : {
-	"Presente" :[("yo","hago"), ("tu","haces"),("el/ella", "hace"),("nosotros", "hacemos"), ("vosotros","hacéis") ,("ellos", "hacen")]
+,"hacer" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","hago"), ("tu","haces"),("el/ella", "hace"),("nosotros", "hacemos"), ("vosotros","hacéis") ,("ellos", "hacen")]
 ,"Pretérito_imperfecto":[("yo","hacía"), ("tu","hacías"),("el/ella", "hacía"),("nosotros", "hacíamos"), ("vosotros","hacíais") ,("ellos", "hacían")]
 ,"Pretérito_simple": [("yo","hice"), ("tu","hiciste"),("el/ella", "hizo"),("nosotros", "hicimos"), ("vosotros","hicisteis") ,("ellos", "hicieron")]
 ,"Futuro" :[("yo","haré"), ("tu","harás"),("el/ella", "hará"),("nosotros", "haremos"), ("vosotros","haréis") ,("ellos", "harán")]
@@ -94,8 +97,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","haciendo"), ("Participio","hecho") ]
 }
 
-,"tener" : {
-	"Presente" :[("yo","tengo"), ("tu","tienes"),("el/ella", "tiene"),("nosotros", "tenemos"), ("vosotros","tenéis") ,("ellos", "tienen")]
+,"tener" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","tengo"), ("tu","tienes"),("el/ella", "tiene"),("nosotros", "tenemos"), ("vosotros","tenéis") ,("ellos", "tienen")]
 ,"Pretérito_imperfecto":[("yo","tenía"), ("tu","tenías"),("el/ella", "tenía"),("nosotros", "teníamos"), ("vosotros","teníais") ,("ellos", "tenían")]
 ,"Pretérito_simple": [("yo","tuve"), ("tu","tuviste"),("el/ella", "tuvo"),("nosotros", "tuvimos"), ("vosotros","tuvisteis") ,("ellos", "tuvieron")]
 ,"Futuro" :[("yo","tendré"), ("tu","tendrás"),("el/ella", "tendrá"),("nosotros", "tendremos"), ("vosotros","tendréis") ,("ellos", "tendrán")]
@@ -106,8 +109,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","teniendo"), ("Participio","tenido") ]
 }
 
-,"poder" : {
-	"Presente" :[("yo","puedo"), ("tu","puedes"),("el/ella", "puede"),("nosotros", "podemos"), ("vosotros","podéis") ,("ellos", "pueden")]
+,"poder" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","puedo"), ("tu","puedes"),("el/ella", "puede"),("nosotros", "podemos"), ("vosotros","podéis") ,("ellos", "pueden")]
 ,"Pretérito_imperfecto":[("yo","podía"), ("tu","podías"),("el/ella", "podía"),("nosotros", "podíamos"), ("vosotros","podíais") ,("ellos", "podían")]
 ,"Pretérito_simple": [("yo","pude"), ("tu","pudiste"),("el/ella", "pudo"),("nosotros", "pudimos"), ("vosotros","pudisteis") ,("ellos", "pudieron")]
 ,"Futuro" :[("yo","podré"), ("tu","podrás"),("el/ella", "podrá"),("nosotros", "podremos"), ("vosotros","podréis") ,("ellos", "podrán")]
@@ -118,8 +121,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","pudiendo"), ("Participio","podido") ]
 }
 
-,"decir" : {
-	"Presente" :[("yo","digo"), ("tu","dices"),("el/ella", "dice"),("nosotros", "decimos"), ("vosotros","decís") ,("ellos", "dicen")]
+,"decir" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","digo"), ("tu","dices"),("el/ella", "dice"),("nosotros", "decimos"), ("vosotros","decís") ,("ellos", "dicen")]
 ,"Pretérito_imperfecto":[("yo","decía"), ("tu","decías"),("el/ella", "decía"),("nosotros", "decíamos"), ("vosotros","decíais") ,("ellos", "decían")]
 ,"Pretérito_simple": [("yo","dije"), ("tu","dijiste"),("el/ella", "dijo"),("nosotros", "dijimos"), ("vosotros","dijisteis") ,("ellos", "dijeron")]
 ,"Futuro" :[("yo","diré"), ("tu","dirás"),("el/ella", "dirá"),("nosotros", "diremos"), ("vosotros","diréis") ,("ellos", "dirán")]
@@ -130,8 +133,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","diciendo"), ("Participio","dicho") ]
 }
 
-,"ver" : {
-	"Presente" :[("yo","veo"), ("tu","ves"),("el/ella", "ve"),("nosotros", "vemos"), ("vosotros","veis") ,("ellos", "ven")]
+,"ver" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","veo"), ("tu","ves"),("el/ella", "ve"),("nosotros", "vemos"), ("vosotros","veis") ,("ellos", "ven")]
 ,"Pretérito_imperfecto":[("yo","veía"), ("tu","veías"),("el/ella", "veía"),("nosotros", "veíamos"), ("vosotros","veíais") ,("ellos", "veían")]
 ,"Pretérito_simple": [("yo","vi"), ("tu","viste"),("el/ella", "vio"),("nosotros", "vimos"), ("vosotros","visteis") ,("ellos", "vieron")]
 ,"Futuro" :[("yo","veré"), ("tu","verás"),("el/ella", "verá"),("nosotros", "veremos"), ("vosotros","veréis") ,("ellos", "verán")]
@@ -142,8 +145,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","viendo"), ("Participio","visto") ]
 }
 
-,"dar" : {
-	"Presente" :[("yo","doy"), ("tu","das"),("el/ella", "da"),("nosotros", "damos"), ("vosotros","dais") ,("ellos", "dan")]
+,"dar" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","doy"), ("tu","das"),("el/ella", "da"),("nosotros", "damos"), ("vosotros","dais") ,("ellos", "dan")]
 ,"Pretérito_imperfecto":[("yo","daba"), ("tu","dabas"),("el/ella", "daba"),("nosotros", "dabamos"), ("vosotros","dabais") ,("ellos", "daban")]
 ,"Pretérito_simple": [("yo","di"), ("tu","diste"),("el/ella", "dio"),("nosotros", "dimos"), ("vosotros","disteis") ,("ellos", "dieron")]
 ,"Futuro" :[("yo","daré"), ("tu","darás"),("el/ella", "dará"),("nosotros", "daremos"), ("vosotros","daréis") ,("ellos", "darán")]
@@ -154,8 +157,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","dando"), ("Participio","dado") ]
 }
 
-,"saber" : {
-	"Presente" :[("yo","sé"), ("tu","sabes"),("el/ella", "sabe"),("nosotros", "sabemos"), ("vosotros","sabéis") ,("ellos", "saben")]
+,"saber" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","sé"), ("tu","sabes"),("el/ella", "sabe"),("nosotros", "sabemos"), ("vosotros","sabéis") ,("ellos", "saben")]
 ,"Pretérito_imperfecto":[("yo","sabía"), ("tu","sabías"),("el/ella", "sabía"),("nosotros", "sabíamos"), ("vosotros","sabíais") ,("ellos", "sabían")]
 ,"Pretérito_simple": [("yo","supe"), ("tu","supiste"),("el/ella", "supo"),("nosotros", "supimos"), ("vosotros","supisteis") ,("ellos", "supieron")]
 ,"Futuro" :[("yo","sabré"), ("tu","sabrás"),("el/ella", "sabrá"),("nosotros", "sabremos"), ("vosotros","sabréis") ,("ellos", "sabrán")]
@@ -166,8 +169,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","sabiendo"), ("Participio","sabido") ]
 }
 
-,"querer" : {
-	"Presente" :[("yo","quiero"), ("tu","quieres"),("el/ella", "quiere"),("nosotros", "queremos"), ("vosotros","queréis") ,("ellos", "quieren")]
+,"querer" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","quiero"), ("tu","quieres"),("el/ella", "quiere"),("nosotros", "queremos"), ("vosotros","queréis") ,("ellos", "quieren")]
 ,"Pretérito_imperfecto":[("yo","quería"), ("tu","querías"),("el/ella", "quería"),("nosotros", "queríamos"), ("vosotros","queríais") ,("ellos", "querían")]
 ,"Pretérito_simple": [("yo","quise"), ("tu","quisiste"),("el/ella", "quiso"),("nosotros", "quisimos"), ("vosotros","quisisteis") ,("ellos", "quisieron")]
 ,"Futuro" :[("yo","querré"), ("tu","querrás"),("el/ella", "querrá"),("nosotros", "querremos"), ("vosotros","querréis") ,("ellos", "querrán")]
@@ -178,8 +181,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","queriendo"), ("Participio","querido") ]
 }
 
-,"poner" : {
-	"Presente" :[("yo","pongo"), ("tu","pones"),("el/ella", "pone"),("nosotros", "ponemos"), ("vosotros","ponéis") ,("ellos", "ponen")]
+,"poner" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","pongo"), ("tu","pones"),("el/ella", "pone"),("nosotros", "ponemos"), ("vosotros","ponéis") ,("ellos", "ponen")]
 ,"Pretérito_imperfecto":[("yo","ponía"), ("tu","ponías"),("el/ella", "ponía"),("nosotros", "poníamos"), ("vosotros","poníais") ,("ellos", "ponían")]
 ,"Pretérito_simple": [("yo","puse"), ("tu","pusiste"),("el/ella", "puso"),("nosotros", "pusimos"), ("vosotros","pusisteis") ,("ellos", "pusieron")]
 ,"Futuro" :[("yo","pondré"), ("tu","pondrás"),("el/ella", "pondrá"),("nosotros", "pondremos"), ("vosotros","pondréis") ,("ellos", "pondrán")]
@@ -190,8 +193,8 @@ VERBS = {
 ,"Formas_no_personales":[ ("Gerundio","poniendo"), ("Participio","puesto") ]
 }
 
-,"oír" : {
-	"Presente" :[("yo","oigo"), ("tu","oyes"),("el/ella", "oye"),("nosotros", "oímos"), ("vosotros","oís") ,("ellos", "oyen")]
+,"oír" : {"_metadata" : TENSE_METADATA
+,"Presente" :[("yo","oigo"), ("tu","oyes"),("el/ella", "oye"),("nosotros", "oímos"), ("vosotros","oís") ,("ellos", "oyen")]
 ,"Pretérito_imperfecto":[("yo","oía"), ("tu","oías"),("el/ella", "oía"),("nosotros", "oíamos"), ("vosotros","oíais") ,("ellos", "oían")]
 ,"Pretérito_simple": [("yo","oí"), ("tu","oíste"),("el/ella", "oyó"),("nosotros", "oímos"), ("vosotros","oísteis") ,("ellos", "oyeron")]
 ,"Futuro" :[("yo","oiré"), ("tu","oirás"),("el/ella", "oirá"),("nosotros", "oiremos"), ("vosotros","oiréis") ,("ellos", "oirán")]
