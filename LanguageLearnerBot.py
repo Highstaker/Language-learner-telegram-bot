@@ -6,7 +6,7 @@
 # -spam protection. Maybe drop excessive messages.
 # --make bot universal, for databases of any depth. Maybe make the script be ableto work with various databases which can be chosen at runtime.
 
-VERSION_NUMBER = (1,0,1)
+VERSION_NUMBER = (1,0,2)
 
 from DATABASE import DATABASE
 import telegram
@@ -184,7 +184,7 @@ class TelegramBot():
 			sleep(0.5)
 
 		#send this message to the user when the process is terminated
-		self.send_message("Thank you for coming. Type anything to restart the communication.",ID,[["/start"]])
+		self.sendMessage(ID,"Thank you for coming. Type anything to restart the communication.",[["Start"]])
 
 	def sendMessage(self,chat_id,text,key_markup=MAIN_MENU_KEY_MARKUP):
 		'''
@@ -209,16 +209,6 @@ class TelegramBot():
 					logging.error("Could not send message. Retrying! Error: " + str(e))
 					continue
 			break
-
-
-	def deleteUser(self,ID):
-		'''
-		Deletes the user data from the users dictionary
-		'''
-		#lock here!
-		logging.warning("deleting user" + str(ID))
-		del self.users[ID]#doesn't delete?
-		#unlock here!
 
 	def createUser(self,ID,process,queue):
 		'''
