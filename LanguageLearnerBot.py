@@ -6,9 +6,9 @@
 # -spam protection. Maybe drop excessive messages.
 # --make bot universal, for databases of any depth. Maybe make the script be ableto work with various databases which can be chosen at runtime.
 
-VERSION_NUMBER = (1,0,0)
+VERSION_NUMBER = (1,0,1)
 
-from VERBS import VERBS, BOT_TOKEN
+from DATABASE import DATABASE
 import telegram
 from multiprocessing import Process, Queue, Lock
 from time import time, sleep
@@ -77,9 +77,9 @@ class TelegramBot():
 
 		def getCurDict(modeLevel):
 			if not modeLevel:
-				return VERBS
+				return DATABASE
 			else:
-				cur_dict = VERBS
+				cur_dict = DATABASE
 				for i in modeLevel:
 					cur_dict = cur_dict[i]
 				return cur_dict
@@ -148,7 +148,7 @@ class TelegramBot():
 						#Session complete, reset
 						return_text += "\nSession complete!"
 						self.modeLevel = None
-						return_key_markup = MAIN_MENU_MARKUP
+						return_key_markup = MAIN_MENU_KEY_MARKUP
 				else:
 					#incorrect
 					return_text = "Incorrect! Try again!"

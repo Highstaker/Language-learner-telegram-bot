@@ -2,11 +2,17 @@
 
 import os.path
 
+PICK_LANGUAGE_METADATA = {"Prompt" : "Choose a language", "Name" : "Language"}
+PICK_TYPE_OF_WORDS = {"Prompt" : "Choose a type of words", "Name" : "Type of words"}
 CONJUGATION_METADATA = {"Prompt" : "Which conjugation? Or irregular?", "Name" : "Conjugation"}
 VERB_METADATA = {"Prompt" : "Which verb?", "Name" : "Verb"}
 TENSE_METADATA = {"Prompt" : "Which tense?", "Name" : "Tense"}
 
-VERBS = { "_metadata" : CONJUGATION_METADATA
+DATABASE = { "_metadata" : PICK_LANGUAGE_METADATA
+
+,"Spanish": { "_metadata" : PICK_TYPE_OF_WORDS
+
+,"Verbs":{ "_metadata" : CONJUGATION_METADATA
 ,"Conjugation_1" : { "_metadata" : VERB_METADATA
 ,"bailar" : { "_metadata" : TENSE_METADATA
 ,"Presente" :[("yo","bailo"),("tu","bailas"), ("el/ella","baila"),("nosotros", "bailamos"),("vosotros", "bailáis") ,("ellos", "bailan")]
@@ -205,5 +211,7 @@ VERBS = { "_metadata" : CONJUGATION_METADATA
 ,"Formas_no_personales":[ ("Gerundio","oyendo"), ("Participio","oído") ]
 }
 
+}
+}
 }
 }
