@@ -87,6 +87,15 @@ class DB_Manager(object):
 
 		return result
 
+	def deleteWord(self,chat_id, index):
+		"""
+		Deletes a word, but only if it belongs to the specified user user
+		"""
+		command = """DELETE FROM words WHERE ID IN 
+		(SELECT words.ID FROM words JOIN courses ON words.course=courses.ID 
+			WHERE words.ID={0} and courses.author_id={1});""".format(index,chat_id)
+
+		self._run_command(command)
 
 
 	def setUserCourse(self, chat_id, course):

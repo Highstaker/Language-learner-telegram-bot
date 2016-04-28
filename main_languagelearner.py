@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 0, 1)
+VERSION_NUMBER = (2, 0, 2)
 
 import re
 
@@ -55,7 +55,7 @@ class LanguageLearner(object):
 			def formatWordData(word_list):
 				result = ""
 				for word in word_list:
-					result += "/{0} {1}; {2}\n".format(word["ID"],word["word"],word["translation"])
+					result += "№{0} {1}; {2}\n".format(word["ID"],word["word"],word["translation"])
 				return result
 
 			course = databases.getUserCourse(chat_id=chat_id)
@@ -109,6 +109,13 @@ class LanguageLearner(object):
 			else:
 				databases.addWordEntry(data=message[4:], course=course)
 				msg = lS(WORD_ADDED_MESSAGE)
+			bot.sendMessage(chat_id=chat_id
+				,message=msg
+				,key_markup=MMKM
+				)
+		elif re.fullmatch("^/del[0-9]*", message):
+			databases.deleteWord(chat_id=chat_id, index=message[4:])
+			msg = "Word deleted!"
 			bot.sendMessage(chat_id=chat_id
 				,message=msg
 				,key_markup=MMKM
