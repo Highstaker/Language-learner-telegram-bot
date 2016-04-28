@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 0, 0)
+VERSION_NUMBER = (2, 0, 1)
 
 import re
 
@@ -55,7 +55,7 @@ class LanguageLearner(object):
 			def formatWordData(word_list):
 				result = ""
 				for word in word_list:
-					result += "/{0} {1}; {2}".format(word["ID"],word["word"],word["translation"])
+					result += "/{0} {1}; {2}\n".format(word["ID"],word["word"],word["translation"])
 				return result
 
 			course = databases.getUserCourse(chat_id=chat_id)
@@ -63,7 +63,10 @@ class LanguageLearner(object):
 				msg = "You haven't selected a course yet!"
 			else:
 				word_list = databases.getUserWordList(course=course)
-				msg = formatWordData(word_list)
+				if not word_list:
+					msg = "No words in this course yet"
+				else:
+					msg = formatWordData(word_list)
 			bot.sendMessage(chat_id=chat_id
 				,message=msg
 				,key_markup=MMKM
@@ -101,9 +104,13 @@ class LanguageLearner(object):
 				)
 		elif re.match("^add ", message):
 			course = databases.getUserCourse(chat_id=chat_id)
-			databases.addWordEntry(data=message[4:], course=course)
+			if course == None:
+				msg = "You haven't selected the course yet!"
+			else:
+				databases.addWordEntry(data=message[4:], course=course)
+				msg = lS(WORD_ADDED_MESSAGE)
 			bot.sendMessage(chat_id=chat_id
-				,message=lS(WORD_ADDED_MESSAGE)
+				,message=msg
 				,key_markup=MMKM
 				)
 		else:
