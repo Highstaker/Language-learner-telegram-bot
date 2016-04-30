@@ -49,6 +49,8 @@ OTHER_BOTS_BUTTON = {"EN":"👾 My other bots", "RU": "👾 Другие мои 
 HELP_BUTTON = {"EN":"⁉️" + "Help", "RU": "⁉️ Помощь"}
 
 WORD_LIST_BUTTON = {"EN": "Word list", "RU": "Список слов"}
+COURSES_LIST_BUTTON = {"EN": "Course list", "RU": "Список курсов"}
+REFRESH_BUTTON = {"EN": "Refresh a word!", "RU": "Повторить слово!"}
 
 ##################
 # BIG TEXTS#######
@@ -69,5 +71,9 @@ OTHER_BOTS_MESSAGE = """*My other bots*:
 @multitran\_bot: a Russian-Whichever dictionary with support of 9 languages. Has transcriptions for English words.
 """
 
-HELP_MESSAGE = """no help
+HELP_MESSAGE = """First, create a course. Type `addcourse coursename`.
+Then you can list your courses with /courses or {0} button.
+Assign yourself to a course by clicking on /setcourseXX link.
+Now you can add words to that course by typing `add word@@translation`.
+To refresh the words that are not fresh, use /refresh.
 """

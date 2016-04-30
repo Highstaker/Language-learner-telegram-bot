@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 2)
+VERSION_NUMBER = (2, 1, 3)
 
 import re
 
@@ -85,7 +85,7 @@ class LanguageLearner(object):
 								, key_markup=MMKM
 								, markdown=True
 								)
-			elif message == "/refresh":
+			elif message == "/refresh" or message == lS(REFRESH_BUTTON):
 				course = databases.getUserCourse(chat_id)
 				if course == None:
 					msg = "No course is set!"
@@ -120,7 +120,7 @@ class LanguageLearner(object):
 					,message=msg
 					,key_markup=MMKM
 					)
-			elif message == "/courses":
+			elif message == "/courses" or message == lS(COURSES_LIST_BUTTON):
 				courses_list = databases.getUserCoursesList(chat_id)
 				if courses_list:
 					formatted_list = [("/setcourse" + str(i["ID"]) + " " 
@@ -169,6 +169,20 @@ class LanguageLearner(object):
 					,message=msg
 					,key_markup=MMKM
 					)
+			elif message == RU_LANG_BUTTON:
+				databases.setLanguage(chat_id, 'RU')
+				LS = LanguageSupport("RU")
+				bot.sendMessage(chat_id=chat_id
+								, message="Сообщения бота будут отображаться на русском языке."
+								, key_markup=LS.languageSupport(MM)
+								)
+			elif message == EN_LANG_BUTTON:
+				databases.setLanguage(chat_id, 'EN')
+				LS = LanguageSupport("EN")
+				bot.sendMessage(chat_id=chat_id
+								, message="Bot messages will be shown in English."
+								, key_markup=LS.languageSupport(MM)
+								)
 			else:
 				bot.sendMessage(chat_id=chat_id,
 					message=lS(UNKNOWN_COMMAND_MESSAGE)
