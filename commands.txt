@@ -1,0 +1,6 @@
+help - show help
+about - show info about the bot
+otherbots - info about other bots of mine
+refresh - refresh a word
+words - show the list of words in current course
+courses - show all your courses

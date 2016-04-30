@@ -54,9 +54,9 @@ WORD_LIST_BUTTON = {"EN": "Word list", "RU": "Список слов"}
 # BIG TEXTS#######
 ##################
 
-ABOUT_MESSAGE = """*Stockholm train delays bot*
+ABOUT_MESSAGE = """*Word Learner bot*
 _Created by:_ Highstaker a.k.a. OmniSable.
-Source: https://github.com/Highstaker/Train-delays-bot
+Source: https://github.com/Highstaker/Language-learner-telegram-bot
 Version: {0}
 This bot uses the python-telegram-bot library.
 https://github.com/leandrotoledo/python-telegram-bot

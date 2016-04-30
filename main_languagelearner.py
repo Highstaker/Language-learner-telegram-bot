@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 1)
+VERSION_NUMBER = (2, 1, 2)
 
 import re
 
@@ -67,6 +67,24 @@ class LanguageLearner(object):
 					,message=lS(START_MESSAGE)
 					,key_markup=MMKM
 					)
+			elif message == "/help" or message == lS(HELP_BUTTON):
+				bot.sendMessage(chat_id=chat_id
+								, message=lS(HELP_MESSAGE)
+								, key_markup=MMKM
+								, markdown=True
+								)
+			elif message == "/about" or message == lS(ABOUT_BUTTON):
+				bot.sendMessage(chat_id=chat_id
+								, message=lS(ABOUT_MESSAGE).format(".".join([str(i) for i in VERSION_NUMBER]))
+								, key_markup=MMKM
+								, markdown=True
+								)
+			elif message == "/otherbots" or message == lS(OTHER_BOTS_BUTTON):
+				bot.sendMessage(chat_id=chat_id
+								, message=lS(OTHER_BOTS_MESSAGE)
+								, key_markup=MMKM
+								, markdown=True
+								)
 			elif message == "/refresh":
 				course = databases.getUserCourse(chat_id)
 				if course == None:
