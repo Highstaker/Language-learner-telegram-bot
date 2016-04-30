@@ -4,6 +4,8 @@
 import os
 from os import path
 import sqlite3
+from time import time
+from random import choice
 
 from textual_data import DATABASE_PATH
 from utils import SQLiteUtils
@@ -57,6 +59,98 @@ class DB_Manager(object):
 
 		self._run_command(command)
 
+	def askRefreshWord(self,chat_id,course):
+		"""
+		Sets the user to answer state. Returns the promt.
+		"""
+		# time to wait since last refresh for each level
+		LEVEL_TIMES = (0,
+					   14400,#4h
+					   43200,#12h
+					   86400,#1d
+					   259200,#3d
+					   604800,#1w
+					   1209600,#2w
+					   2419200,#1m
+					   4838400,#2m
+					   7257600,#3m
+					   )
+
+		data = self.getCourseWordList(course)
+
+		refreshable = list()
+		for Word in data:
+			try:
+				level_time = LEVEL_TIMES[Word["level"]]
+			except IndexError:
+				level_time = LEVEL_TIMES[len(LEVEL_TIMES)-1]
+
+			if time() > (Word["last_refresh"] + level_time):
+				refreshable.append(Word)
+
+		if refreshable:
+			the_word = choice(refreshable)
+
+			self.setUserAnswerState(chat_id, the_word["ID"])
+
+			promt = the_word["translation"]
+		else:
+			promt = None
+
+		return promt
+
+	def incrementWordLevel(self, ID):
+		"""
+		Adds one to word level. Usually called after correct answer
+		"""
+		command = "UPDATE words SET level=level+1 WHERE ID={0}".format(ID)
+
+		self._run_command(command)
+
+	def resetWordLevel(self, ID):
+		"""
+		Resets the word level to zero. Usually called after wrong answer
+		"""
+		command = "UPDATE words SET level=0 WHERE ID={0}".format(ID)
+
+		self._run_command(command)
+
+	def updateWordRefreshTime(self,ID):
+		"""
+		Sets the "last_updated" field for a word to current time
+		:param ID:
+		:return:
+		"""
+		command = "UPDATE words SET last_refresh={0} WHERE ID={1}".format(int(time()), ID)
+
+		self._run_command(command)
+
+	def nullifyUserAnswerState(self, chat_id):
+		"""
+		Reset the user's answer state. Means return to main menu
+		"""
+		command = "UPDATE users SET answer_state=NULL WHERE chat_id={0};".format(chat_id)
+
+		self._run_command(command)
+
+	def setUserAnswerState(self, chat_id, ID):
+		"""
+		Sets the answer state for a user. GEnerally used to show the ID of a word to refresh.
+		"""
+		command = "UPDATE users SET answer_state={0} WHERE chat_id={1};".format(ID, chat_id)
+
+		self._run_command(command)
+
+	def getUserAnswerState(self, chat_id):
+		"""
+		Returns the answer state for a user
+		"""
+		command = "SELECT answer_state FROM users WHERE chat_id={0};".format(chat_id)
+
+		data = self._run_command(command)
+
+		return data[0][0]
+
 	def getUserCourse(self, chat_id):
 		"""
 		Returns the ID of the course selected by a user
@@ -109,19 +203,46 @@ class DB_Manager(object):
 
 		self._run_command(command)
 
-	def getUserWordList(self, course):
+	def getCourseWordList(self, course):
 		"""
 		Returns a list of words in the course.
 		"""
-		command = "SELECT ID, word, translation FROM words WHERE course={0};".format(course)
+		command = "SELECT ID, word, translation, last_refresh, level FROM words WHERE course={0};".format(course)
 
 		data = self._run_command(command)
 
 		result = list()
 		for word_data in data:
-			result.append({"ID": word_data[0], "word": word_data[1], "translation": word_data[2]})
+			result.append({"ID": word_data[0],
+			 "word": word_data[1],
+			  "translation": word_data[2],
+			  "last_refresh": word_data[3],
+			  "level": word_data[4]
+			  })
 
 		return result
+
+	def getWordData(self, ID):
+		"""
+		Returns data for a word with given ID
+		"""
+		command = "SELECT word, translation, last_refresh, level FROM words WHERE ID={0};".format(ID)
+
+		data = self._run_command(command)
+
+		try:
+			data = data[0]
+		except TypeError:
+			return None
+
+		result = {"word": data[0],
+			"translation": data[1],
+			"last_refresh": data[2],
+			"level": data[3]
+			}
+
+		return result
+
 
 	def addCourse(self, chat_id, course):
 		"""
@@ -170,7 +291,8 @@ class DB_Manager(object):
 
 		word, translation = parseWordData(data)
 
-		command = "INSERT INTO words (word, translation, level, course) VALUES ('{0}','{1}',0, {2});".format(word, translation, course)
+		command = "INSERT INTO words (word, translation, level, course, last_refresh)" \
+				  " VALUES ('{0}','{1}',0, {2}, 0);".format(word, translation, course)
 
 		self._run_command(command)
 
@@ -240,7 +362,8 @@ class DB_Manager(object):
 		command = """CREATE TABLE users (chat_id INTEGER PRIMARY KEY,
 			lang TEXT,
 			admin INTEGER,
-			cur_course INTEGER
+			cur_course INTEGER,
+			answer_state INTEGER
 			);
 """
 
@@ -295,10 +418,10 @@ class Tests(unittest.TestCase):
 			# print("getUserCourse 111", db.getUserCourse(111))
 			self.assertEqual(db.getUserCourse(111), 1)
 
-			self.assertEqual(db.getUserWordList(course=1),list())
+			self.assertEqual(db.getCourseWordList(course=1),list())
 			db.addWordEntry(data="hello@@привет",course=1)
 			db.addWordEntry(data="goodbye@@пока",course=1)
-			self.assertEqual(db.getUserWordList(course=1),[{"ID": 1, "word": "hello", "translation": "привет"},
+			self.assertEqual(db.getCourseWordList(course=1),[{"ID": 1, "word": "hello", "translation": "привет"},
 				{"ID": 2, "word": "goodbye", "translation": "пока"}])
 
 		finally:
