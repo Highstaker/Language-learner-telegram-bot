@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 0)
+VERSION_NUMBER = (2, 1, 1)
 
 import re
 
@@ -49,7 +49,7 @@ class LanguageLearner(object):
 
 		if user_answer_state:
 			the_word = databases.getWordData(ID=user_answer_state)["word"]
-			if message == the_word:
+			if message.lower() == the_word.lower():
 				databases.incrementWordLevel(ID=user_answer_state)
 				msg = "Correct!"
 			else:
@@ -115,7 +115,7 @@ class LanguageLearner(object):
 					, message=msg
 					, key_markup=MMKM
 					)
-			elif re.match("^addcourse ", message):
+			elif re.match("^addcourse ", message, re.IGNORECASE):
 				databases.addCourse(chat_id=chat_id, course=message[10:])
 				bot.sendMessage(chat_id=chat_id
 								, message=lS(COURSE_ADDED_MESSAGE)
@@ -133,7 +133,7 @@ class LanguageLearner(object):
 					, message=msg
 					, key_markup=MMKM
 					)
-			elif re.match("^add ", message):
+			elif re.match("^add ", message, re.IGNORECASE):
 				course = databases.getUserCourse(chat_id=chat_id)
 				if course == None:
 					msg = "You haven't selected the course yet!"
