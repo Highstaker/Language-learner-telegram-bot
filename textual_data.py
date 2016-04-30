@@ -33,6 +33,7 @@ WORD_ADDED_MESSAGE = {"EN": "The word has been added!",
 COURSE_ADDED_MESSAGE = {"EN": "The course has been created!",
 "RU": "Курс создан!"}
 COURSE_SET_MESSAGE = "The course is set to {0}"
+INCORRECT_FORMAT_MESSAGE = "Incorrect input format!"
 
 UNKNOWN_COMMAND_MESSAGE = {"EN": "Unknown command!",
 "RU":"Неизвестная команда"}
@@ -72,7 +73,7 @@ OTHER_BOTS_MESSAGE = """*My other bots*:
 """
 
 HELP_MESSAGE = """First, create a course. Type `addcourse coursename`.
-Then you can list your courses with /courses or {0} button.
+Then you can list your courses with /courses.
 Assign yourself to a course by clicking on /setcourseXX link.
 Now you can add words to that course by typing `add word@@translation`.
 To refresh the words that are not fresh, use /refresh.

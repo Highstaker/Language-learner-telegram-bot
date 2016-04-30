@@ -276,7 +276,7 @@ class DB_Manager(object):
 
 	def addWordEntry(self, data, course):
 		"""
-		Adds a word to words table
+		Adds a word to words table. Returns False if the input format is incorrect
 		:chat_id: user that entered the word
 		:data: unparsed data about the word
 		:course: a course ID which this word belongs to
@@ -285,16 +285,26 @@ class DB_Manager(object):
 		def parseWordData(Data):
 			divisor = "@@"
 			result = Data.split(divisor)
-			result = [i.strip("\t\n\r ") for i in result]
 
-			return result[0], result[1]
+			if len(result) < 2:
+				return None, None
+			else:
+				result = [i.strip("\t\n\r ") for i in result]
+				if not result[0] or not result[1]:
+					return None, None
+
+				return result[0], result[1]
 
 		word, translation = parseWordData(data)
 
-		command = "INSERT INTO words (word, translation, level, course, last_refresh)" \
-				  " VALUES ('{0}','{1}',0, {2}, 0);".format(word, translation, course)
+		if not word:
+			return False
+		else:
+			command = "INSERT INTO words (word, translation, level, course, last_refresh)" \
+					  " VALUES ('{0}','{1}',0, {2}, 0);".format(word, translation, course)
 
-		self._run_command(command)
+			self._run_command(command)
+			return True
 
 	def _addColumn(self, table, column, init_data):
 		"""

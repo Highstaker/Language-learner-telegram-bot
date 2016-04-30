@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 3)
+VERSION_NUMBER = (2, 1, 4)
 
 import re
 
@@ -156,8 +156,11 @@ class LanguageLearner(object):
 				if course == None:
 					msg = "You haven't selected the course yet!"
 				else:
-					databases.addWordEntry(data=message[4:], course=course)
-					msg = lS(WORD_ADDED_MESSAGE)
+					status = databases.addWordEntry(data=message[4:], course=course)
+					if status:
+						msg = lS(WORD_ADDED_MESSAGE)
+					else:
+						msg = lS(INCORRECT_FORMAT_MESSAGE)
 				bot.sendMessage(chat_id=chat_id
 					,message=msg
 					,key_markup=MMKM
