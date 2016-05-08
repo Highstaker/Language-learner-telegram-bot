@@ -105,7 +105,7 @@ class DB_Manager(object):
 			except OverflowError:
 				result = None
 
-		return result
+		return result, len(refreshable)
 
 	def incrementWordLevel(self, ID):
 		"""
