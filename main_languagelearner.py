@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 5)
+VERSION_NUMBER = (2, 1, 6)
 
 import re
 
@@ -90,11 +90,14 @@ class LanguageLearner(object):
 				if course == None:
 					msg = "No course is set!"
 				else:
-					trans = databases.askRefreshWord(chat_id, course)
-					if trans:
-						msg = trans
+					result = databases.askRefreshWord(chat_id, course)
+					if isinstance(result, str):
+						msg = result
+					elif isinstance(result, int):
+						msg = "Everything is fresh in this course!\n"\
+						+ "Seconds till next refresh: {}".format(result)
 					else:
-						msg = "Everything is fresh in this course!"
+						msg = "Unknown error!"
 				bot.sendMessage(chat_id=chat_id
 					, message=msg
 					, key_markup=MMKM

@@ -79,25 +79,33 @@ class DB_Manager(object):
 		data = self.getCourseWordList(course)
 
 		refreshable = list()
+		min_time_till_refresh = float("inf") # if all words are fresh, take the minimum time till refresh and return it
 		for Word in data:
 			try:
 				level_time = LEVEL_TIMES[Word["level"]]
 			except IndexError:
 				level_time = LEVEL_TIMES[len(LEVEL_TIMES)-1]
 
-			if time() > (Word["last_refresh"] + level_time):
+			time_left = (Word["last_refresh"] + level_time) - time()
+			if time_left < 0:
 				refreshable.append(Word)
+			else:
+				if time_left < min_time_till_refresh:
+					min_time_till_refresh = time_left
 
 		if refreshable:
 			the_word = choice(refreshable)
 
 			self.setUserAnswerState(chat_id, the_word["ID"])
 
-			promt = the_word["translation"]
+			result = the_word["translation"]
 		else:
-			promt = None
+			try:
+				result = int(min_time_till_refresh)
+			except OverflowError:
+				result = None
 
-		return promt
+		return result
 
 	def incrementWordLevel(self, ID):
 		"""
