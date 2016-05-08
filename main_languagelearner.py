@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 4)
+VERSION_NUMBER = (2, 1, 5)
 
 import re
 
@@ -122,10 +122,13 @@ class LanguageLearner(object):
 					)
 			elif message == "/courses" or message == lS(COURSES_LIST_BUTTON):
 				courses_list = databases.getUserCoursesList(chat_id)
+				selected_course = databases.getUserCourse(chat_id)
 				if courses_list:
-					formatted_list = [("/setcourse" + str(i["ID"]) + " " 
-						+ "/courseinfo" + str(i["ID"]) + " " + 
-						i["name"]) for i in courses_list]
+					formatted_list = [(
+						("(*)" if selected_course == i["ID"] else "/setcourse" + str(i["ID"]))
+						+ " "
+						# + "/courseinfo" + str(i["ID"]) + " "
+						+ i["name"]) for i in courses_list]
 					msg = "\n".join(formatted_list)
 				else:
 					msg = "You have no courses yet!"
