@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 7)
+VERSION_NUMBER = (2, 1, 8)
 
 import re
 
@@ -14,6 +14,7 @@ from telegramHigh import TelegramHigh
 from language_support import LanguageSupport
 from database_manager import DB_Manager
 from button_handler import getMainMenu
+import utils
 
 class LanguageLearner(object):
 	"""docstring for LanguageLearner"""
@@ -96,7 +97,7 @@ class LanguageLearner(object):
 						msg += result
 					elif isinstance(result, int):
 						msg = "Everything is fresh in this course!\n"\
-						+ "Seconds till next refresh: {}".format(result)
+						+ "Till next refresh: {}".format(utils.secondsToText(result))
 					else:
 						msg = "Unknown error!"
 				bot.sendMessage(chat_id=chat_id
