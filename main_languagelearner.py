@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 8)
+VERSION_NUMBER = (2, 1, 9)
 
 import re
 
@@ -102,7 +102,7 @@ class LanguageLearner(object):
 						msg = "Unknown error!"
 				bot.sendMessage(chat_id=chat_id
 					, message=msg
-					, key_markup=MMKM
+					, key_markup=None
 					)
 
 			elif message == "/words" or message == lS(WORD_LIST_BUTTON):
