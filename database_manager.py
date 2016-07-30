@@ -395,6 +395,7 @@ class DB_Manager(object):
 		:return:
 		"""
 		conn = sqlite3.connect(self.filename)
+		cursor = conn.execute("PRAGMA synchronous=OFF;")
 		cursor = conn.execute(command)
 		data =[i for i in cursor]
 		conn.commit()
