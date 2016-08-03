@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 10)
+VERSION_NUMBER = (2, 1, 11)
 
 import re
 
@@ -87,6 +87,7 @@ class LanguageLearner(object):
 								, markdown=True
 								)
 			elif message == "/refresh" or message == lS(REFRESH_BUTTON):
+				kbd_markup = MMKM
 				course = databases.getUserCourse(chat_id)
 				if course == None:
 					msg = "No course is set!"
@@ -95,6 +96,7 @@ class LanguageLearner(object):
 					if isinstance(result, str):
 						msg = "Words left to refresh: {}\n\n".format(number_of_refreshable_words)
 						msg += result
+						kbd_markup=None  # hide custom keyboard when refreshing a word
 					elif isinstance(result, int):
 						msg = "Everything is fresh in this course!\n"\
 						+ "Till next refresh: {}".format(utils.secondsToText(result))
@@ -102,7 +104,7 @@ class LanguageLearner(object):
 						msg = "Unknown error!"
 				bot.sendMessage(chat_id=chat_id
 					, message=msg
-					, key_markup=None
+					, key_markup=kbd_markup
 					)
 
 			elif message == "/words" or message == lS(WORD_LIST_BUTTON):
