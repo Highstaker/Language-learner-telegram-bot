@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 1, 11)
+VERSION_NUMBER = (2, 1, 12)
 
 import re
 
@@ -49,20 +49,29 @@ class LanguageLearner(object):
 		user_answer_state = databases.getUserAnswerState(chat_id)
 
 		if user_answer_state:
+			# the user is challenged with a word
 			the_word = databases.getWordData(ID=user_answer_state)["word"]
-			if message.lower() == the_word.lower():
-				databases.incrementWordLevel(ID=user_answer_state)
-				msg = "Correct!"
+			if message == "/refresh" or message == lS(REFRESH_BUTTON):
+				msg = "You are already guessing!"
+				bot.sendMessage(chat_id=chat_id
+								, message=msg
+								, key_markup=None
+								)
 			else:
-				databases.resetWordLevel(ID=user_answer_state)
-				msg = "Wrong! The correct answer is {0}".format(the_word)
-			databases.updateWordRefreshTime(ID=user_answer_state)
-			databases.nullifyUserAnswerState(chat_id)
-			bot.sendMessage(chat_id=chat_id
-				,message=msg
-				,key_markup=MMKM
-				)
+				if message.lower() == the_word.lower():
+					databases.incrementWordLevel(ID=user_answer_state)
+					msg = "Correct!"
+				else:
+					databases.resetWordLevel(ID=user_answer_state)
+					msg = "Wrong! The correct answer is {0}".format(the_word)
+				databases.updateWordRefreshTime(ID=user_answer_state)
+				databases.nullifyUserAnswerState(chat_id)
+				bot.sendMessage(chat_id=chat_id
+					,message=msg
+					,key_markup=MMKM
+					)
 		else:
+			# all other commands
 			if message == "/start":
 				bot.sendMessage(chat_id=chat_id
 					,message=lS(START_MESSAGE)
