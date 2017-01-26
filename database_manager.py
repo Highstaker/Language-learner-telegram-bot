@@ -29,10 +29,11 @@ class DB_Manager(object):
 		"""
 		Create a user entry, if it doesn't exist yet. Do nothing if there is one.
 		"""
-		command = "INSERT INTO users (chat_id, lang, admin) VALUES ({0},'EN',0);".format(chat_id)
+		command = "INSERT INTO users (chat_id, lang, admin) VALUES (?,'EN',0);"
+		params = (chat_id,)
 
 		try:
-			self._run_command(command)
+			self._run_command(command, params)
 		except sqlite3.IntegrityError:
 			# if user already exists, do nothing
 			pass
@@ -41,9 +42,10 @@ class DB_Manager(object):
 		"""
 		Returns an interface language selected by a user
 		"""
-		command = "SELECT lang FROM users WHERE chat_id={0};".format(chat_id)
+		command = "SELECT lang FROM users WHERE chat_id=?;"
+		params = (chat_id,)
 
-		data = self._run_command(command)
+		data = self._run_command(command, params)
 
 		return data[0][0]
 
@@ -55,9 +57,10 @@ class DB_Manager(object):
 		:return:
 		"""
 
-		command = "UPDATE users SET lang='{0}' WHERE chat_id={1};".format(lang,chat_id)
+		command = "UPDATE users SET lang=? WHERE chat_id=?;"
+		params = (lang, chat_id,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def askRefreshWord(self,chat_id,course):
 		"""
@@ -74,6 +77,7 @@ class DB_Manager(object):
 					   2419200,#1m
 					   4838400,#2m
 					   7257600,#3m
+					   14515200,#6m
 					   )
 
 		data = self.getCourseWordList(course)
@@ -111,17 +115,19 @@ class DB_Manager(object):
 		"""
 		Adds one to word level. Usually called after correct answer
 		"""
-		command = "UPDATE words SET level=level+1 WHERE ID={0}".format(ID)
+		command = "UPDATE words SET level=level+1 WHERE ID=?"
+		params = (ID,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def resetWordLevel(self, ID):
 		"""
 		Resets the word level to zero. Usually called after wrong answer
 		"""
-		command = "UPDATE words SET level=0 WHERE ID={0}".format(ID)
+		command = "UPDATE words SET level=0 WHERE ID=?"
+		params = (ID,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def updateWordRefreshTime(self,ID):
 		"""
@@ -129,33 +135,37 @@ class DB_Manager(object):
 		:param ID:
 		:return:
 		"""
-		command = "UPDATE words SET last_refresh={0} WHERE ID={1}".format(int(time()), ID)
+		command = "UPDATE words SET last_refresh=? WHERE ID=?"
+		params = (int(time()), ID, )
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def nullifyUserAnswerState(self, chat_id):
 		"""
 		Reset the user's answer state. Means return to main menu
 		"""
-		command = "UPDATE users SET answer_state=NULL WHERE chat_id={0};".format(chat_id)
+		command = "UPDATE users SET answer_state=NULL WHERE chat_id=?;"
+		params = (chat_id,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def setUserAnswerState(self, chat_id, ID):
 		"""
 		Sets the answer state for a user. GEnerally used to show the ID of a word to refresh.
 		"""
-		command = "UPDATE users SET answer_state={0} WHERE chat_id={1};".format(ID, chat_id)
+		command = "UPDATE users SET answer_state=? WHERE chat_id=?;"
+		params = (ID, chat_id,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def getUserAnswerState(self, chat_id):
 		"""
 		Returns the answer state for a user
 		"""
-		command = "SELECT answer_state FROM users WHERE chat_id={0};".format(chat_id)
+		command = "SELECT answer_state FROM users WHERE chat_id=?;"
+		params = (chat_id,)
 
-		data = self._run_command(command)
+		data = self._run_command(command, params)
 
 		return data[0][0]
 
@@ -163,9 +173,10 @@ class DB_Manager(object):
 		"""
 		Returns the ID of the course selected by a user
 		"""
-		command = "SELECT cur_course FROM users WHERE chat_id={0};".format(chat_id)
+		command = "SELECT cur_course FROM users WHERE chat_id=?;"
+		params = (chat_id,)
 
-		data = self._run_command(command)
+		data = self._run_command(command, params)
 
 		return data[0][0]
 
@@ -173,9 +184,10 @@ class DB_Manager(object):
 		"""
 		Returns the list of dictionaries containing data about all courses created by user 
 		"""
-		command = "SELECT ID, name, description FROM courses WHERE author_id={0};".format(chat_id)
+		command = "SELECT ID, name, description FROM courses WHERE author_id=?;"
+		params = (chat_id,)
 
-		data = self._run_command(command)
+		data = self._run_command(command, params)
 
 		if not data:
 			return None
@@ -195,9 +207,10 @@ class DB_Manager(object):
 		"""
 		command = """DELETE FROM words WHERE ID IN 
 		(SELECT words.ID FROM words JOIN courses ON words.course=courses.ID 
-			WHERE words.ID={0} and courses.author_id={1});""".format(index,chat_id)
+			WHERE words.ID=? and courses.author_id=?);"""
+		params = (index, chat_id,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 
 	def setUserCourse(self, chat_id, course):
@@ -207,17 +220,19 @@ class DB_Manager(object):
 		:param course: course ID
 		:return:
 		"""
-		command = "UPDATE users SET cur_course={0} WHERE chat_id={1};".format(course, chat_id)
+		command = "UPDATE users SET cur_course=? WHERE chat_id=?;"
+		params = (course, chat_id,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def getCourseWordList(self, course):
 		"""
 		Returns a list of words in the course.
 		"""
-		command = "SELECT ID, word, translation, last_refresh, level FROM words WHERE course={0};".format(course)
+		command = "SELECT ID, word, translation, last_refresh, level FROM words WHERE course=?;"
+		params = (course,)
 
-		data = self._run_command(command)
+		data = self._run_command(command, params)
 
 		result = list()
 		for word_data in data:
@@ -234,9 +249,10 @@ class DB_Manager(object):
 		"""
 		Returns data for a word with given ID
 		"""
-		command = "SELECT word, translation, last_refresh, level FROM words WHERE ID={0};".format(ID)
+		command = "SELECT word, translation, last_refresh, level FROM words WHERE ID=?;"
+		params = (ID,)
 
-		data = self._run_command(command)
+		data = self._run_command(command, params)
 
 		try:
 			data = data[0]
@@ -258,9 +274,10 @@ class DB_Manager(object):
 		:course: a course name
 		"""
 		command = """INSERT INTO courses (name, author_id, description) 
-										VALUES ('{0}',{1},'');""".format(course, chat_id)
+										VALUES (?,?,'');"""
+		params = (course, chat_id,)
 
-		self._run_command(command)
+		self._run_command(command, params)
 
 	def getCourseData(self, course):
 		"""
@@ -268,9 +285,10 @@ class DB_Manager(object):
 		"""
 		if course == None:
 			return None
-		command = "SELECT name, description, author_id FROM courses WHERE id ={0};".format(course)
+		command = "SELECT name, description, author_id FROM courses WHERE id=?;"
+		params = (course,)
 
-		data = self._run_command(command)
+		data = self._run_command(command, params)
 
 		if not data:
 			return None
@@ -309,9 +327,10 @@ class DB_Manager(object):
 			return False
 		else:
 			command = "INSERT INTO words (word, translation, level, course, last_refresh)" \
-					  " VALUES ('{0}','{1}',0, {2}, 0);".format(word, translation, course)
+					" VALUES (?, ?,0, ?, 0);"
+			params = (word, translation, course,)
 
-			self._run_command(command)
+			self._run_command(command, params)
 			return True
 
 	def _addColumn(self, table, column, init_data):
@@ -388,7 +407,7 @@ class DB_Manager(object):
 		self._run_command(command)
 
 
-	def _run_command(self, command):
+	def _run_command(self, command, parameters=()):
 		"""
 		Runs a given command and returns the output.
 		:param command:
@@ -396,8 +415,8 @@ class DB_Manager(object):
 		"""
 		conn = sqlite3.connect(self.filename)
 		cursor = conn.execute("PRAGMA synchronous=OFF;")
-		cursor = conn.execute(command)
-		data =[i for i in cursor]
+		cursor = conn.execute(command, parameters)
+		data = tuple(i for i in cursor)
 		conn.commit()
 		conn.close()
 
@@ -440,8 +459,10 @@ class Tests(unittest.TestCase):
 			self.assertEqual(db.getCourseWordList(course=1),list())
 			db.addWordEntry(data="hello@@привет",course=1)
 			db.addWordEntry(data="goodbye@@пока",course=1)
-			self.assertEqual(db.getCourseWordList(course=1),[{"ID": 1, "word": "hello", "translation": "привет"},
-				{"ID": 2, "word": "goodbye", "translation": "пока"}])
+			print(db.getCourseWordList(course=1))
+			self.assertEqual(db.getCourseWordList(course=1), [
+				{"ID": 1, "word": "hello", "translation": "привет", 'last_refresh': 0, 'level': 0,},
+				{"ID": 2, "word": "goodbye", "translation": "пока", 'last_refresh': 0, 'level': 0,}])
 
 		finally:
 			os.remove(test_db_filename)
