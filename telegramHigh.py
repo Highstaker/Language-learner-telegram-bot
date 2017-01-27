@@ -500,12 +500,15 @@ class TelegramHigh:
 		# main message processing routine
 		for update in updates:
 			if update:
-				logging.warning("Received message: " + str(
-						update.message.chat_id) + " " + update.message.from_user.username + " " + update.message.text)
+				try:
+					logging.warning("Received message: " + str(
+							update.message.chat_id) + " " + update.message.from_user.username + " " + update.message.text)
 
-				# a functions that processes updates, one by one
-				if processingFunction:
-					processingFunction(update)
+					# a functions that processes updates, one by one
+					if processingFunction:
+						processingFunction(update)
+				except:
+					pass
 
 			# Updates global offset to get the new updates
 			self.LAST_UPDATE_ID = update.update_id + 1

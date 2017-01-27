@@ -5,7 +5,7 @@
 from python_version_check import check_version
 check_version((3, 4, 3))
 
-VERSION_NUMBER = (2, 2, 1)
+VERSION_NUMBER = (2, 2, 2)
 
 import re
 
